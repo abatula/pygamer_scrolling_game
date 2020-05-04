@@ -37,13 +37,13 @@ blinka = stage.Sprite(
 wall_sprites = []
 # Add left and right walls
 for y in range (0, 320, 16):
-    wall_sprites.append(stage.Sprite(bank, frame=3, x=0, y=y))
-    wall_sprites.append(stage.Sprite(bank, frame=3, x=304, y=y))
+    wall_sprites.append(stage.Sprite(bank, frame=5, x=0, y=y))
+    wall_sprites.append(stage.Sprite(bank, frame=5, x=304, y=y))
 
 # Add top and bottom walls
 for x in range(16, 304, 16):
-    wall_sprites.append(stage.Sprite(bank, frame=3, x=x, y=0))
-    wall_sprites.append(stage.Sprite(bank, frame=3, x=x, y=304))
+    wall_sprites.append(stage.Sprite(bank, frame=5, x=x, y=0))
+    wall_sprites.append(stage.Sprite(bank, frame=5, x=x, y=304))
 
 # Put all sprites that aren't Blinka in a single list. This will make things easier later
 world_sprites = wall_sprites
@@ -85,7 +85,7 @@ while True:
     # Animate Blinka by changing the frame
     # Add 1 to the current frame to move on to the next one
     # The modulo (%) operator lets us wrap back to the first frame number at the end
-    blinka.set_frame(frame=blinka.frame % 2 + 1)
+    blinka.set_frame(frame=blinka.frame % 4 + 1)
 
     # Update the display of all sprites in the list
     game.render_sprites([blinka] + world_sprites)
