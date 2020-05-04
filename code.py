@@ -8,11 +8,13 @@ Tiles are 16x16, window is 10 tiles wide x 8 tiles high.
 Sprite locations are the top left point of the sprite image.
 """
 
+MOVE_SPEED = 6 # How fast the game scrolls
+FPS = 12 # Maximum frames per second
 
 # Set up the main game display
 game = stage.Stage(
     display=ugame.display, # initialized display parameter
-    fps=6 # Maximum frame rate
+    fps=FPS # Set maximum frame rate
 )
 
 # Load in the sprite and background images
@@ -34,19 +36,21 @@ blinka = stage.Sprite(
 # Create sprites the same way as for blinka
 wall_sprites = []
 # Add left and right walls
-for y in range (0, 304, 16):
+for y in range (0, 320, 16):
     wall_sprites.append(stage.Sprite(bank, frame=3, x=0, y=y))
     wall_sprites.append(stage.Sprite(bank, frame=3, x=304, y=y))
 
 # Add top and bottom walls
-for x in range(16, 288, 16):
+for x in range(16, 304, 16):
     wall_sprites.append(stage.Sprite(bank, frame=3, x=x, y=0))
     wall_sprites.append(stage.Sprite(bank, frame=3, x=x, y=304))
 
+# Put all sprites that aren't Blinka in a single list. This will make things easier later
+world_sprites = wall_sprites
 
 # Create a list of layers to be displayed, from foreground to background
 # Background should always be last or it will cover anything behind it
-game.layers = [blinka] + wall_sprites + [background]
+game.layers = [blinka] + world_sprites + [background]
 
 # Update the display
 game.render_block()
@@ -55,13 +59,36 @@ game.render_block()
 # Game runs in a loop forever, refreshing the screen as often as fps allows
 while True:
 
-    # Animate blinka by changing the frame
+    # If control pad/joystick buttons are pressed, determine where to move
+    dx = 0 # How far to move in x direction
+    dy = 0 # How far to move in y direction
+
+    # See which buttons are pressed (if any)
+    keys = ugame.buttons.get_pressed()
+
+    # ugame.K_RIGHT will be true if the rigt button is pressed
+    if keys & ugame.K_RIGHT:
+        dx = -MOVE_SPEED
+    elif keys & ugame.K_LEFT:
+        dx = MOVE_SPEED
+    if keys & ugame.K_UP:
+        dy = MOVE_SPEED
+    elif keys & ugame.K_DOWN:
+        dy = -MOVE_SPEED
+
+    # Update the location on all world sprites. This keeps Blinka in the center and moves the world around her.
+    for sprite in world_sprites:
+        # Have to call update to store old location in temp variable, otherwise it may not erase properly
+        sprite.update()
+        sprite.move(x=sprite.x + dx, y=sprite.y + dy)
+
+    # Animate Blinka by changing the frame
     # Add 1 to the current frame to move on to the next one
     # The modulo (%) operator lets us wrap back to the first frame number at the end
     blinka.set_frame(frame=blinka.frame % 2 + 1)
 
     # Update the display of all sprites in the list
-    game.render_sprites([blinka] + wall_sprites)
+    game.render_sprites([blinka] + world_sprites)
 
     # Wait for the start of the next frame (limited by fps set when creating game)
     game.tick()
