@@ -29,11 +29,24 @@ blinka = stage.Sprite(
     x=72, # Set the x co-ordinate of the top-right corner of the sprite
     y=56, # set the y co-ordinate of the top-right corner of the sprite
 )
-                      
+
+# Set up walls as obstacles we can't pass. Each piece of wall is a sprite.
+# Create sprites the same way as for blinka
+wall_sprites = []
+# Add left and right walls
+for y in range (0, 304, 16):
+    wall_sprites.append(stage.Sprite(bank, frame=3, x=0, y=y))
+    wall_sprites.append(stage.Sprite(bank, frame=3, x=304, y=y))
+
+# Add top and bottom walls
+for x in range(16, 288, 16):
+    wall_sprites.append(stage.Sprite(bank, frame=3, x=x, y=0))
+    wall_sprites.append(stage.Sprite(bank, frame=3, x=x, y=304))
+
 
 # Create a list of layers to be displayed, from foreground to background
 # Background should always be last or it will cover anything behind it
-game.layers = [blinka, background]
+game.layers = [blinka] + wall_sprites + [background]
 
 # Update the display
 game.render_block()
@@ -48,7 +61,7 @@ while True:
     blinka.set_frame(frame=blinka.frame % 2 + 1)
 
     # Update the display of all sprites in the list
-    game.render_sprites([blinka])
+    game.render_sprites([blinka] + wall_sprites)
 
     # Wait for the start of the next frame (limited by fps set when creating game)
     game.tick()
