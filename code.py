@@ -11,6 +11,8 @@ Sprite locations are the top left point of the sprite image.
 MOVE_SPEED = 6 # How fast the game scrolls, values of 16+ could cause problems detecting collisions
 FPS = 12 # Maximum frames per second
 
+game_state = 'play' # State of the game: win, lose, or play
+
 # Set up the main game display
 game = stage.Stage(
     display=ugame.display, # initialized display parameter
@@ -45,19 +47,41 @@ for x in range(16, 304, 16):
     wall_sprites.append(stage.Sprite(bank, frame=5, x=x, y=0))
     wall_sprites.append(stage.Sprite(bank, frame=5, x=x, y=304))
 
+# Add enemies
+enemy_sprites = [
+    stage.Sprite(bank, frame=6, x=100, y=100),
+    stage.Sprite(bank, frame=6, x=200, y=200),
+    stage.Sprite(bank, frame=6, x=200, y=240),
+    stage.Sprite(bank, frame=6, x=180, y=220)
+]
+
+# Add goal
+goal_sprite = stage.Sprite(bank, frame=7, x=200, y=220)
+
 # Put all sprites that aren't Blinka in a single list. This will make things easier later
-world_sprites = wall_sprites
+world_sprites = [goal_sprite] + enemy_sprites +  wall_sprites
+
+# Create text object to display mesages
+text = stage.Text(width=12, height=11)
+        
+# Set the text location
+text.move(x=50, y=50)
 
 # Create a list of layers to be displayed, from foreground to background
 # Background should always be last or it will cover anything behind it
-game.layers = [blinka] + world_sprites + [background]
+game.layers = [text, blinka] + world_sprites + [background]
 
 # Update the display
 game.render_block()
 
-
 # Game runs in a loop forever, refreshing the screen as often as fps allows
 while True:
+
+    # If the game is over, freeze the screen until reset
+    if game_state != 'play':
+
+        game.tick()
+        continue
 
     # If control pad/joystick buttons are pressed, determine where to move
     dx = 0 # How far to move in x direction
@@ -107,6 +131,47 @@ while True:
         # dy/abs(dy) gets whether dx is above or below 0, determines whether we add or subtract 16
         if y_collision and dy != 0: 
             dy = blinka.y - sprite.y - dy / abs(dy) * 16
+
+    # Check if Blinka hits an enemy (causes Game Over)
+    for sprite in enemy_sprites:
+        collision = stage.collide(ax0=blinka.x,   
+                                  ay0=blinka.y,  
+                                  ax1=blinka.x + 16,  
+                                  ay1=blinka.y + 16,
+                                  bx0=sprite.x + 4 + dx, # Enemy is narrow, move left edge 4 pixels towards middle
+                                  by0=sprite.y,
+                                  bx1=sprite.x + dx + 12, # Enemy is narrow, move right edge 4 pixels towards middle
+                                  by1=sprite.y + 16)
+
+        # If there is an enemy collision, the game is over
+        if collision:
+            game_state = 'lose'
+
+            # Display the message
+            text.text("Game Over!")
+
+            # Re-render block to get text to show
+            game.render_block()
+
+    # Check if Blinka reached the goal (causes Win)
+    collision = stage.collide(ax0=blinka.x,   
+                              ay0=blinka.y,  
+                              ax1=blinka.x + 16,  
+                              ay1=blinka.y + 16,
+                              bx0=goal_sprite.x + dx,
+                              by0=goal_sprite.y,
+                              bx1=goal_sprite.x + dx + 16,
+                              by1=goal_sprite.y + 16)
+
+    # If there is an enemy collision, the player wins
+    if collision: 
+        game_state = 'win'
+
+        # Display the message
+        text.text("You Win!")
+
+        # Re-render block to get text to show
+        game.render_block()
             
 
     # Update the location on all world sprites. This keeps Blinka in the center and moves the world around her.
