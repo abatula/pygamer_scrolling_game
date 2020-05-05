@@ -8,7 +8,7 @@ Tiles are 16x16, window is 10 tiles wide x 8 tiles high.
 Sprite locations are the top left point of the sprite image.
 """
 
-MOVE_SPEED = 6 # How fast the game scrolls
+MOVE_SPEED = 6 # How fast the game scrolls, values of 16+ could cause problems detecting collisions
 FPS = 12 # Maximum frames per second
 
 # Set up the main game display
@@ -75,6 +75,39 @@ while True:
         dy = MOVE_SPEED
     elif keys & ugame.K_DOWN:
         dy = -MOVE_SPEED
+
+    # Keep Blinka from going through walls
+    for sprite in wall_sprites:
+        # Check if the movement in x direction would cause a collision
+        x_collision = stage.collide(ax0=blinka.x + 1,   # Make Blinka 1 pixel smaller in each direction
+                                    ay0=blinka.y + 1,   # to prevent issues with collisions on the
+                                    ax1=blinka.x + 15,  # boundary line
+                                    ay1=blinka.y + 15,
+                                    bx0=sprite.x + dx,
+                                    by0=sprite.y,
+                                    bx1=sprite.x + dx + 16,
+                                    by1=sprite.y + 16)
+
+        # If x movement would cause a collision, limit movement so Blinka is next to wall
+        # dx/abs(dx) gets whether dx is above or below 0, determines whether we add or subtract 16
+        if x_collision and dx != 0: 
+            dx = blinka.x - sprite.x - dx / abs(dx) * 16
+        
+        # Check if the movement in y direction would cause a collision
+        y_collision = stage.collide(ax0=blinka.x + 1,   # Make Blinka 1 pixel smaller in each direction
+                                    ay0=blinka.y + 1,   # to prevent issues with collisions on the
+                                    ax1=blinka.x + 15,  # boundary line
+                                    ay1=blinka.y + 15,
+                                    bx0=sprite.x,
+                                    by0=sprite.y + dy,
+                                    bx1=sprite.x + 16,
+                                    by1=sprite.y + dy + 16)
+
+        # If y movement would cause a collision, limit movement so Blinka is next to wall
+        # dy/abs(dy) gets whether dx is above or below 0, determines whether we add or subtract 16
+        if y_collision and dy != 0: 
+            dy = blinka.y - sprite.y - dy / abs(dy) * 16
+            
 
     # Update the location on all world sprites. This keeps Blinka in the center and moves the world around her.
     for sprite in world_sprites:
