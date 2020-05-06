@@ -90,13 +90,16 @@ while True:
     # See which buttons are pressed (if any)
     keys = ugame.buttons.get_pressed()
 
-    # ugame.K_RIGHT will be true if the rigt button is pressed
+    # ugame.K_RIGHT will be true if the right button is pressed
     if keys & ugame.K_RIGHT:
         dx = -MOVE_SPEED
+    # ugame.K_LEFT will be true if the left button is pressed
     elif keys & ugame.K_LEFT:
         dx = MOVE_SPEED
+    # ugame.K_UP will be true if the up button is pressed
     if keys & ugame.K_UP:
         dy = MOVE_SPEED
+    # ugame.K_DOWN will be true if the down button is pressed
     elif keys & ugame.K_DOWN:
         dy = -MOVE_SPEED
 
