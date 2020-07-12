@@ -19,7 +19,7 @@ The new sprite bank has (from top to bottom):
 - a `;` for enemies
 - the python logo, as a goal location
 
-![sprite bank](img/sprites.png)
+![sprite bank](img/sprites.png =32x512)
 
 ### Game setup
 
