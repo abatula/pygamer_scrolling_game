@@ -186,7 +186,7 @@ If we reach the goal, it's almost exactly the same as if we hit an enemy. Except
                               bx1=goal_sprite.x + dx + 16,
                               by1=goal_sprite.y + 16)
 
-    # If there is an enemy collision, the player wins
+    # If Blinka reached the goal, the player wins
     if collision: 
         game_state = 'win'
 
